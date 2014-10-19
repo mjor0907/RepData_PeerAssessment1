@@ -67,8 +67,9 @@ interval_mean = rep(steps_interval[,2],61)
 pdata$steps[miss_rows] =  interval_mean[miss_rows]
 
 # Make a histogram of the total number of steps taken each day and Calculate and report the mean and median total number of steps taken per day.
-steps_day <- aggregate(steps ~ date, pdata, sum)  
-ggplot(steps_day, aes(x=steps)) + geom_histogram()
+steps_day_2 <- aggregate(steps ~ date, pdata, sum)  
+
+ggplot(steps_day_2, aes(x=steps)) + geom_histogram()
 ```
 
 ```
@@ -87,9 +88,30 @@ The new mean is 1.0766 &times; 10<sup>4</sup> and the median is 1.0765 &times; 1
 ## Are there differences in activity patterns between weekdays and weekends?
 
 ```r
-log_vec= (weekdays(pdata$date) == "Sunday" | weekdays(pdata$date) == "Saturday")
-week = factor(log_vec, labels = c("weekday", "weekend"))
+logic_vect= (weekdays(pdata$date) == "Sunday" | weekdays(pdata$date) == "Saturday")
+week = factor(logic_vect, labels = c("weekday", "weekend"))
+
+factored_data = cbind(pdata, week)
+
+
+# Get average of steps per weekend day in a given interval
+steps_per_interval <- aggregate(steps ~ interval,factored_data[logic_vect,], mean)
+
+
+# Get average of steps per weekday in a given interval
+steps_per_interval_end <- aggregate(steps ~ interval, factored_data[!logic_vect,], mean)
+
+
+par( mfcol = c(2,1), mar=c(4,4,2,2), oma = c(0,0,2,0) )
+
+plot(steps_per_interval$interval,steps_per_interval$steps, type = "l" ,xlab = 'Interval',ylab = 'Average steps')
+title(main ='Weekend pattern')
+
+plot(steps_per_interval_end$interval, steps_per_interval_end$steps, type = 'l', xlab = 'Interval',ylab = 'Average steps')
+title(main ='Weekday pattern')
 ```
+
+![plot of chunk weekday](figure/weekday.png) 
 
 
 
